@@ -1,6 +1,6 @@
 import { Telegraf } from 'telegraf'
 import { Action, InjectBot, Start, Update } from 'nestjs-telegraf'
-import { Context } from './context.interface'
+import { Context, ContextSessionType } from './context.interface'
 import {
   actionButtons,
   menuButtons,
@@ -19,14 +19,14 @@ export class TelegramUpdate {
 
   @Action('menu')
   async showMenu(ctx: Context) {
-    ctx.session.type = 'menu'
+    ctx.session.type = ContextSessionType.MENU
 
     await ctx.reply('Меню', menuButtons())
   }
 
   @Action(/\bsection\w+/)
   async showSection(ctx: Context) {
-    ctx.session.type = 'section'
+    ctx.session.type = ContextSessionType.SECTION
     ctx.session.sectionNumber =
       ctx.update['callback_query']['data'].split('_')[1]
 
@@ -35,7 +35,7 @@ export class TelegramUpdate {
 
   @Action(/\bsubsection\w+/)
   async showPartitionOne(ctx: Context) {
-    ctx.session.type = 'subsection'
+    ctx.session.type = ContextSessionType.SUBSECTION
     ctx.session.subsectionNumber =
       ctx.update['callback_query']['data'].split('_')[1]
 
@@ -49,7 +49,7 @@ export class TelegramUpdate {
   async goBack(ctx: Context) {
     switch (ctx.session.type) {
       case 'subsection':
-        ctx.session.type = 'section'
+        ctx.session.type = ContextSessionType.SECTION
         await ctx.reply(`Раздел ${ctx.session.sectionNumber}`, sectionButtons())
         break
       case 'section':
